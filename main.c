@@ -1,6 +1,6 @@
-#include <stdio.h>
+#include "stdio.h"
 #include "unistd.h"
-#include <assert.h>
+#include "assert.h"
 
 
 typedef int bool;
@@ -61,10 +61,8 @@ Block *get_header(void *ptr) {
   return (Block *)(ptr - sizeof(Block) + sizeof(void *));
 }
 
-//merges two adjacent blocks, addr1 block should be before addr2 block
-Block *join_blocks(void *addr1, void *addr2) {
-  Block *block1 = get_header(addr1);
-  Block *block2 = get_header(addr2);
+//merges two adjacent blocks, *block1 block should be before the block at *block2
+Block *join_blocks(Block *block1, Block *block2) {
   block1->size = block1->size + block2->size + sizeof(Block) - sizeof(void *);
 
   if (block2->next != NULL) {
@@ -110,6 +108,11 @@ void *mem_free(void *addr){
   Block *block = get_header(addr);
   block->used=false;
 } 
+
+
+void pprint(Block *b) {
+  printf("block: %p {\n\tsize: %d,\n\tused: %d,\n\tdata: %p\n}\n", b, b->size, b->used, b->data);
+}
 
 int main() {
   top = heapStart;
