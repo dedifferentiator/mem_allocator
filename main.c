@@ -1,65 +1,7 @@
 #include "stdio.h"
 #include "unistd.h"
 #include "assert.h"
-
-
-typedef int bool;
-#define true 1
-#define false 0
-
-typedef struct Block {
-  // -------------------------------------
-  // 1. Object header
-
-  //Block size.
-  size_t size;
-  
-  // Whether this block is currently used
-  bool used;
-  
-  //Previous block in the list
-  struct Block *prev;
-
-  //Next block in the list
-  struct Block *next;
-  // -------------------------------------
-
-  // 2. User data
-  void* data;
-
-} Block;
-
-//Heap start. Initialized on first allocation.
-Block *heapStart = NULL;
-
-//Current top. Updated on each allocation.
-Block *top;
-
-//aligns size by word size (depends on architecture) 32-bit - 4 bytes, 64-bit - 8 bytes
-size_t align(size_t size) {
-  return (size + sizeof(void *) - 1) &~ (sizeof(void *) -1);
-}
-
-//calculates required size for creating new block
-size_t alloc_size(size_t size) {
-  //size of Block struct - size of pointer included in user data + size of user data
-  return sizeof(Block) - sizeof(void *) + size;
-}
-
-//allocates memory of size 'size'
-Block *request_from_os(size_t size) {
-  Block *b = (Block*) sbrk(0);
-  
-  if (sbrk(alloc_size(size)) == (void *) - 1) {
-    return NULL;
-  }
-
-  return b;
-}
-
-Block *get_header(void *ptr) {
-  return (Block *)(ptr - sizeof(Block) + sizeof(void *));
-}
+#include "block.h"
 
 //merges two adjacent blocks, *block1 block should be before the block at *block2
 Block *join_blocks(Block *block1, Block *block2) {
@@ -107,13 +49,8 @@ void *mem_realloc(void *addr, size_t size) {}
 void *mem_free(void *addr){
   Block *block = get_header(addr);
   block->used=false;
-} 
-
-
-void pprint(Block *b) {
-  printf("block: %p {\n\tsize: %d,\n\tused: %d,\n\tdata: %p\n}\n", b, b->size, b->used, b->data);
 }
-
+ 
 int main() {
   top = heapStart;
 
