@@ -34,6 +34,9 @@ void *mem_alloc(size_t size) {
 
   if (top != NULL) {
     top->next = block;
+    //if previous block exists set *next field of it to current block
+    Block *block_prev = get_header(get_prev(block));
+    block_prev->next = block;
   }
 
   //updating the most recent block
@@ -59,33 +62,28 @@ int main() {
   void *b1 = mem_alloc(5);
   Block *b1h = get_header(b1);
   assert(b1h->size == sizeof(void *));
-
-  printf("new block ptr: %p size: %d used: %d user data %p\n", b1h, b1h->size, b1h->used, b1h->data);
-
+  pprint(b1h, 1);
+  
   void *b2 = mem_alloc(10);
   Block *b2h = get_header(b2);
   assert(b2h->size == sizeof(void *)*2);
-  printf("new block ptr: %p size: %d used: %d user data %p\n", b2h, b2h->size, b2h->used, b2h->data);
-
+  pprint(b2h, 2);
 
   void *b3 = mem_alloc(10);
   Block *b3h = get_header(b3);
   assert(b3h->size == sizeof(void *)*2);
-  printf("new block ptr: %p size: %d used: %d user data %p\n", b3h, b3h->size, b3h->used, b3h->data);
+  pprint(b3h, 3);
 
   mem_free(b2);
   assert(b2h->used==false);
-  printf("freed block 2 ptr: %p size: %d used: %d user data %p\n", b2h, b2h->size, b2h->used, b2h->data);
+  pprint(b2h, 2);
 
   mem_free(b3);
   assert(b3h->used==false);
-  printf("freed block 3 ptr: %p size: %d used: %d user data %p\n", b3h, b3h->size, b3h->used, b3h->data);
+  pprint(b3h, 3);
 
   b2h = join_blocks(b2h, b3h);
-
-  printf("joined block 2 ptr: %p size: %d used: %d user data %p\n", b2h, b2h->size, b2h->used, b2h->data);
-
- 
+  pprint(b2h, 2); 
   return 0;
 }
 

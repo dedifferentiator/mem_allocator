@@ -56,7 +56,32 @@ void *get_data(Block *block) {
   return block->data;
 }
 
+//sets size of user data
+void *set_size(Block *block, size_t size) {
+  block->size = size;
+}
+
+//sets status of block usage
+void *set_used(Block *block, bool used) {
+  block->used = used; 
+}
+
+//sets pointer to previous block
+void *set_prev(Block *block, Block *prev) {
+  block->prev=prev;
+}
+
+//sets pointer to next block
+void *set_next(Block *block, Block *next) {
+  block->next = next;
+}
+
+//sets pointer to user data
+void *set_data(Block *block, void *data) {
+  block->data=data;
+}
+
 //pretty prints Block struct
-void pprint(Block *b) {
-  printf("block: %p {\n\tsize: %d,\n\tused: %d, \n\tprev: %p, \n\tnext: %p,\n\tdata: %p\n}\n", b, get_size(b), get_used(b), get_prev(b), get_next(b), get_data(b));
+void pprint(Block *b, int b_num) {
+  printf("block #%d: %p {\n\tsize: %d,\n\tused: %d, \n\tprev: %p, \n\tnext: %p,\n\tdata: %p\n}\n", b_num, b, get_size(b), get_used(b), get_prev(b), get_next(b), get_data(b));
 }

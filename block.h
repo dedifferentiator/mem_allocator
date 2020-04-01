@@ -53,8 +53,23 @@ Block *get_next(Block *block);
 //return pointer to user data
 void *get_data(Block *block);
 
+//sets size of user data
+void *set_size(Block *block, size_t size);
+
+//sets status of block usage
+void *set_used(Block *block, bool used);
+
+//sets pointer to previous block
+void *set_prev(Block *block, Block *prev);
+
+//sets pointer to next block
+void *set_next(Block *block, Block *next);
+
+//sets pointer to user data
+void *set_data(Block *block, void *data);
+
 //pretty prints Block struct
-void pprint(Block *b);
+void pprint(Block *b, int b_num);
 
 size_t align(size_t size);
 
