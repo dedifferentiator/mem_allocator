@@ -31,7 +31,32 @@ Block *get_header(void *ptr) {
   return (Block *)(ptr - sizeof(Block) + sizeof(void *));
 }
 
+//return size of user data in block
+size_t get_size(Block *block) {
+  return block->size;
+}
+
+//return status of usage of block
+bool get_used(Block *block) {
+  return block->used;
+}
+
+//return pointer to previous block, if it does not exist returns NULL
+Block *get_prev(Block *block) {
+  return block->prev;
+}
+
+//return pointer to next block, if it does not exist return NULL
+Block *get_next(Block *block) {
+  return block->next;
+}
+
+//return pointer to user data
+void *get_data(Block *block) {
+  return block->data;
+}
+
 //pretty prints Block struct
 void pprint(Block *b) {
-  printf("block: %p {\n\tsize: %d,\n\tused: %d,\n\tdata: %p\n}\n", b, b->size, b->used, b->data);
+  printf("block: %p {\n\tsize: %d,\n\tused: %d, \n\tprev: %p, \n\tnext: %p,\n\tdata: %p\n}\n", b, get_size(b), get_used(b), get_prev(b), get_next(b), get_data(b));
 }

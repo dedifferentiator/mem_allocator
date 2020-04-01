@@ -5,14 +5,14 @@
 
 //merges two adjacent blocks, *block1 block should be before the block at *block2
 Block *join_blocks(Block *block1, Block *block2) {
-  block1->size = block1->size + block2->size + sizeof(Block) - sizeof(void *);
+  block1->size = get_size(block1) + get_size(block2) + sizeof(Block) - sizeof(void *);
 
-  if (block2->next != NULL) {
-    Block *block3 = get_header(block2->next);
+  if (get_next(block2) != NULL) {
+    Block *block3 = get_header(get_next(block2));
     block3->prev = block1;
   }
 
-  block1->next = block2->next;
+  block1->next = get_next(block2);
   return block1;
 }
 
