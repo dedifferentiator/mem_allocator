@@ -4,6 +4,8 @@
 
 Block *heapStart = NULL;
 
+Block *top = NULL;
+
 //aligns size by word size (depends on architecture) 32-bit - 4 bytes, 64-bit - 8 bytes
 size_t align(size_t size) {
   return (size + sizeof(void *) - 1) &~ (sizeof(void *) -1);
