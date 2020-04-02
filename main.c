@@ -6,29 +6,33 @@
 //merges two adjacent blocks, *block1 block should be before the block at *block2
 Block *join_blocks(Block *block1, Block *block2) {
   set_size(block1, get_size(block1) + get_size(block2) + sizeof(Block) - sizeof(void *));
-
+  printf("b1: %p, b2: %p, block1: %d, block2: %d, Block: %d, void *: %d\n", block1, block2, get_size(block1), get_size(block2), sizeof(Block), sizeof(void *));
   if (get_next(block2) != NULL) {
     Block *block3 = get_next(block2);
     set_prev(block3, block1);
-    set_next(block1, block3);
   }
+  
+  set_next(block1, get_next(block2));
+
   if (top == block2) {
     top = block1;
   }
-
   return block1;
 }
 
+//allocates new block of memory
 void *alloc_block(size_t size) {
   size = align(size);
   Block *block = request_from_os(size);
   if (block == NULL) {
     return NULL;
   }
-  
+
   set_size(block, size);
   set_used(block, true);
-  set_prev(block, top);
+  if (top != NULL) {
+    set_prev(block, top);
+  }
   set_data(block, (void *)(((void *) block) + sizeof(Block) - sizeof(void *)));
 
   if (heapStart == NULL) {
@@ -62,12 +66,18 @@ Block *find_block(size_t size) {
 
 //spliting block on two block, first one has a size of user data at least 'size_u' if splitting is impossible returns block unchanged
 Block *split_block(Block *block, size_t size_u) {
-  Block *r_block = (Block *)((void *)block + sizeof(Block) - sizeof(void *) + align(size_u));
+  Block *r_block = (Block *)((void *)block + sizeof(Block) - sizeof(void *) + size_u);
 
-  set_size(r_block, get_size(block) - sizeof(Block));
+  set_size(r_block, get_size(block) - sizeof(Block) + sizeof(void *));
   set_used(r_block, false);
   set_prev(r_block, block);
-  set_next(r_block, get_next(block));
+
+  if (get_next(block) != NULL) {
+    set_next(r_block, get_next(block));
+  } else {
+    set_next(r_block, NULL);
+  }
+
   set_data(r_block, (void *)(((void *) r_block) + sizeof(Block) - sizeof(void *)));
 
   set_next(block, r_block);
@@ -84,11 +94,10 @@ void *mem_alloc(size_t size) {
   size = align(size);
 
   Block *block = find_block(size);
-  
-  // if there is free block and if it is too large 
+   
   if (block != NULL) {
     if (((int)get_size(block) - (int)size - (int)sizeof(Block) + (int)sizeof(void *)) >= (int)(sizeof (void*))){
-      Block *block = split_block(block, size);
+      block = split_block(block, size);
     }
     set_used(block, true);
     return get_data(block);
@@ -99,14 +108,15 @@ void *mem_alloc(size_t size) {
 //reallocates new block of memory with new size or in case of failure keeps given block unchanged
 void *mem_realloc(void *addr, size_t size) {}
 
-void *mem_dump(){
-  Block *cur = heapStart;
-  size_t b_num = 0;
-  while (cur != NULL) {
-    pprint(cur, b_num);
+void *mem_dump() {
+  Block *cur_b = heapStart;
+  size_t b_num = 1;  //block number in the chain
+
+  while (cur_b != NULL) {
+    pprint(cur_b, b_num);
     printf("=====================\n");
 
-    cur = get_next(cur);
+    cur_b = get_next(cur_b);
     b_num++;
   }
 }
@@ -125,7 +135,7 @@ void *mem_free(void *addr){
 }
  
 int main() {
-  top = heapStart;
+//  top = NULL;
 
   assert(sizeof(void *) == align(5));
   assert(sizeof(void *) * 5 == align(40));
@@ -149,22 +159,30 @@ int main() {
   assert(get_used(b1) == true);
 
   mem_free(b3u);
-  assert(get_used(b3) == false);
+  assert(get_used(b2) == false);
   assert(get_used(b1) == true);
-
   printf("-----AFTER FREEING BLOCK 2 AND BLOCK 3-----\n");
   mem_dump();
 
-  void *b4u = mem_alloc(5);
-  Block *b4 = get_header(b4u);
-  assert(get_size(b4) == sizeof(void *));
+  b2u = mem_alloc(5);
+  b2 = get_header(b2u);
+  assert(get_size(b2) == sizeof(void *));
+
+  printf("-----AFTER REQUESTING NEW MEMORY-----\n");
+  mem_dump();
+ 
+
+  b3u = mem_alloc(24);
+  b3 = get_header(b3u);
+  //size should be 32, because block with size 32 cannot be splitted into 2 blocks with one of them 24
+  assert(get_size(b3) == sizeof(void *) * 4);
 
   printf("-----AFTER REQUESTING NEW MEMORY-----\n");
   mem_dump();
 
-  void *b5u = mem_alloc(24);
-  Block *b5 = get_header(b5u);
-  assert(get_size(b5) == sizeof(void *) * 3);
+  void *b4u = mem_alloc(24);
+  Block *b4 = get_header(b4u);
+  assert(get_size(b4) == sizeof(void *) * 3);
 
   printf("-----AFTER REQUESTING NEW MEMORY-----\n");
   mem_dump();

@@ -27,10 +27,10 @@ typedef struct Block {
 } Block;
 
 //Heap start. Initialized on first allocation.
-Block *heapStart;
+static Block *heapStart = NULL;
 
 //Current top. Updated on each allocation.
-Block *top;
+static Block *top = NULL;
 
 //allocates memory of size 'size'
 Block *request_from_os(size_t size);
