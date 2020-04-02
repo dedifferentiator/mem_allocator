@@ -22,7 +22,6 @@ Block *request_from_os(size_t size) {
   if (sbrk(alloc_size(size)) == (void *) - 1) {
     return NULL;
   }
-
   return b;
 }
 
@@ -78,7 +77,7 @@ void *set_next(Block *block, Block *next) {
 
 //sets pointer to user data
 void *set_data(Block *block, void *data) {
-  block->data=data;
+  block->data = data;
 }
 
 //pretty prints Block struct
